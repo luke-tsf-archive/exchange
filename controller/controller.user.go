@@ -9,14 +9,14 @@ import (
 	"github.com/luke-tsf/exchange/model"
 )
 
-func UserRegistration(c *gin.Context) {
+func UsersRegistration(c *gin.Context) {
 	userModelValidator := model.NewUserModelValidator()
 	if err := userModelValidator.Bind(c); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, helpers.NewValidatorError(err))
 		return
 	}
-
-	if err := db.SaveOne(userModelValidator.GetUserModel()); err != nil {
+	userModel := userModelValidator.GetUserModel()
+	if err := db.DB.Save(&userModel).Error; err != nil {
 		c.JSON(http.StatusUnprocessableEntity, helpers.NewError("database", err))
 		return
 	}

@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"log"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -22,8 +23,8 @@ type (
 		gorm.Model
 		Username  string
 		Email     string
-		Salt      string
-		PwdHash   string
+		Salt      []byte
+		PwdHash   []byte
 		LastLogin time.Time
 	}
 )
@@ -33,9 +34,12 @@ type (
 // https://github.com/gin-gonic/gin#model-binding-and-validation
 type UserModelValidator struct {
 	User struct {
-		Username string `form:"username" json:"username" binding:"exists,alphanum,min=4,max=255"`
-		Email    string `form:"email" json:"email" binding:"exists,email"`
-		Password string `form:"password" json:"password" binding:"exists,min=8,max=255"`
+		// Username string `form:"username" json:"username" binding:"exists,alphanum,min=4,max=255"`
+		// Email    string `form:"email" json:"email" binding:"exists,email"`
+		// Password string `form:"password" json:"password" binding:"exists,min=8,max=255"`
+		Username string `json:"username" binding:"exists"`
+		Email    string `json:"email" binding:"exists"`
+		Password string `json:"password" binding:"exists"`
 	} `json:"user"`
 	userModel UserModel `json:"-"`
 }
@@ -50,6 +54,9 @@ func (self *UserModelValidator) Bind(c *gin.Context) error {
 	}
 	self.userModel.Username = self.User.Username
 	self.userModel.Email = self.User.Email
+	log.Printf("Username %v", self.User.Username)
+	log.Printf("Email %v", self.User.Email)
+	log.Printf("Password %v", self.User.Password)
 	if self.User.Password != helpers.NBRandomPassword {
 		salt, hash, err := helpers.GenerateSaltAndHash(self.User.Username, self.User.Password)
 		if err != nil {
@@ -61,6 +68,9 @@ func (self *UserModelValidator) Bind(c *gin.Context) error {
 		self.userModel.PwdHash = hash
 		self.userModel.Salt = salt
 	}
+	self.userModel.LastLogin = time.Now()
+	self.userModel.CreatedAt = time.Now()
+	self.userModel.UpdatedAt = time.Now()
 	return nil
 }
 

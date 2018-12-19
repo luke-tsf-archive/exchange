@@ -3,7 +3,6 @@ package helpers
 import (
 	"bytes"
 	"crypto/rand"
-	"fmt"
 	"io"
 	"log"
 
@@ -24,31 +23,30 @@ func IsEmpty(data string) bool {
 	}
 }
 
-func GenerateSaltAndHash(username string, password string) (string, string, error) {
+func GenerateSaltAndHash(username string, password string) ([]byte, []byte, error) {
 	salt := make([]byte, PW_SALT_BYTES)
 	_, err := io.ReadFull(rand.Reader, salt)
 	log.Printf("New Satl is created for %v is %x", username, salt)
 	if err != nil {
 		log.Println(err)
-		return "", "", err
+		return []byte{}, []byte{}, err
 	}
 	hash, err := scrypt.Key([]byte(password), salt, 1<<14, 8, 1, PW_HASH_BYTES)
 	if err != nil {
 		log.Fatal(err)
-		return "", "", err
+		return []byte{}, []byte{}, err
 	}
 	log.Printf("New Hash is created for %v is %x", username, hash)
-	fmt.Printf("%x\n", hash)
-	return string(salt), string(hash), nil
+	return salt, hash, nil
 }
 
-func VerifyHashWithSalt(password string, salt string, hash string) bool {
-	res, err := scrypt.Key([]byte(password), []byte(salt), 1<<14, 8, 1, PW_HASH_BYTES)
+func VerifyHashWithSalt(password string, salt []byte, hash []byte) bool {
+	res, err := scrypt.Key([]byte(password), salt, 1<<14, 8, 1, PW_HASH_BYTES)
 	if err != nil {
 		log.Fatal(err)
 		return false
 	}
-	if bytes.Compare([]byte(hash), res) == 0 {
+	if bytes.Compare(hash, res) == 0 {
 		return true
 	}
 	return false
