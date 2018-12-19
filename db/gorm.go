@@ -22,3 +22,9 @@ func Init() *gorm.DB {
 func GetDB() *gorm.DB {
 	return DB
 }
+
+func SaveOne(data interface{}) error {
+	db := GetDB()
+	err := db.Save(data).Error
+	return err
+}

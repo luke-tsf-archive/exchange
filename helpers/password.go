@@ -11,8 +11,9 @@ import (
 )
 
 const (
-	PW_SALT_BYTES = 32
-	PW_HASH_BYTES = 64
+	PW_SALT_BYTES    = 32
+	PW_HASH_BYTES    = 64
+	NBRandomPassword = "A String Very Very Very Niubilty!!@##$!@#4"
 )
 
 func IsEmpty(data string) bool {
