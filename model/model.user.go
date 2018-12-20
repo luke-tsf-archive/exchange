@@ -1,7 +1,6 @@
 package model
 
 import (
-	"errors"
 	"log"
 	"time"
 
@@ -62,15 +61,15 @@ func (self *UserModelValidator) Bind(c *gin.Context) error {
 		if err != nil {
 			return err
 		}
-		if helpers.VerifyHashWithSalt(self.User.Username, salt, hash) == false {
-			return errors.New("Erroring verify password hash with salt")
-		}
+		// if helpers.VerifyHashWithSalt(self.User.Username, salt, hash) == false {
+		// 	return errors.New("Erroring verify password hash with salt")
+		// }
 		self.userModel.PwdHash = hash
 		self.userModel.Salt = salt
 	}
 	self.userModel.LastLogin = time.Now()
 	self.userModel.CreatedAt = time.Now()
-	self.userModel.UpdatedAt = time.Now()
+	// self.userModel.UpdatedAt = time.Now()
 	return nil
 }
 

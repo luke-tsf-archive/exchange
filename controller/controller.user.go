@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ import (
 func UsersRegistration(c *gin.Context) {
 	userModelValidator := model.NewUserModelValidator()
 	if err := userModelValidator.Bind(c); err != nil {
+		log.Printf("Error in UsersRegistration %+v \n", err)
 		c.JSON(http.StatusUnprocessableEntity, helpers.NewValidatorError(err))
 		return
 	}
