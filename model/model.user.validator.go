@@ -21,11 +21,48 @@ type UserModelValidator struct {
 	userModel UserModel `json:"-"`
 }
 
+type LoginValidator struct {
+	User struct {
+		Email    string `form:"email" json:"email" binding:"exists,email"`
+		Password string `form:"password" json:"password" binding:"exists,min=8,max=255"`
+	} `json:user`
+	userModel UserModel `json:"-"`
+}
+
+func NewUserModelValidator() UserModelValidator {
+	return UserModelValidator{}
+}
+
+func NewUserModelValidatorFillWith(userModel UserModel) UserModelValidator {
+	userModelValidator := NewUserModelValidator()
+	userModelValidator.User.Username = userModel.Username
+	userModelValidator.User.Email = userModel.Email
+	userModelValidator.User.Password = helpers.NBRandomPassword
+	return userModelValidator
+}
+
+// You can put the default value of a Validator here
+func NewLoginValidator() LoginValidator {
+	return LoginValidator{}
+}
+
 func (self *UserModelValidator) GetUserModel() UserModel {
 	return self.userModel
 }
+
+func (self *LoginValidator) Bind(c *gin.Context) error {
+	log.Printf("Binding LoginValidator input information to Model")
+	err := helpers.Bind(c, self)
+	if err != nil {
+		return err
+	}
+	log.Printf("Login process for email %v", self.User.Email)
+	self.userModel.Email = self.User.Email
+	return nil
+}
+
 func (self *UserModelValidator) Bind(c *gin.Context) error {
-	log.Printf("Binding input information to Model")
+	log.Printf("Binding UserModelValidator input information to Model")
 	err := helpers.Bind(c, self)
 	if err != nil {
 		return err
@@ -46,16 +83,4 @@ func (self *UserModelValidator) Bind(c *gin.Context) error {
 	}
 	self.userModel.CreatedAt = time.Now()
 	return nil
-}
-
-func NewUserModelValidator() UserModelValidator {
-	return UserModelValidator{}
-}
-
-func NewUserModelValidatorFillWith(userModel UserModel) UserModelValidator {
-	userModelValidator := NewUserModelValidator()
-	userModelValidator.User.Username = userModel.Username
-	userModelValidator.User.Email = userModel.Email
-	userModelValidator.User.Password = helpers.NBRandomPassword
-	return userModelValidator
 }

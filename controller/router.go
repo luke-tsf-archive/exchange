@@ -11,6 +11,6 @@ var (
 func Init() *gin.Engine {
 	Router := gin.Default()
 	Router.POST("/", UsersRegistration)
-	// Router.POST("/login", UsersLogin)
+	Router.POST("/login", UsersLogin)
 	return Router
 }
